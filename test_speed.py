@@ -12,12 +12,12 @@ def using_roll(buffer, val):
 
 def test_roll():
     buffer = np.zeros(15, dtype=np.uint8)
-    for I in range(100):
+    for I in np.arange(100):
         buffer =using_roll(buffer, I)
 
 def test_take():
     buffer = np.zeros(15, dtype=np.uint8)
-    for I in range(100):
+    for I in np.arange(100):
         buffer =using_take(buffer, I)
 
 def main():

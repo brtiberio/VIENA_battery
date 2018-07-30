@@ -28,6 +28,7 @@ import sys
 import numpy as np
 
 
+
 def crc_cal(buffer, size):
     """ Calculate crc
 
@@ -83,7 +84,7 @@ class Battery:
     exitFlag = None
     logger = None
 
-    can_message = []
+    can_message = {'ID': None, 'DLC': 0, 'data': [], 'crc': 0}
     buffer = np.zeros(15, dtype=np.uint8)
 
     def init(self, port='/dev/ttyUSB0', baudrate=460800, debug=False):
@@ -165,7 +166,20 @@ class Battery:
             newByte = self._portObj.read()
             self.buffer = np.append(np.take(self.buffer, index), newByte)
             if crc_check(self.buffer):
+                # CAN message
+                # FORMAT: [ 2 byte ID | 1 byte DLC | 8 bytes of data | CRC | CRC^255 ]
+                # From here it's only needed to check the correctness of the CAN message:
+                # if ID, DLC, etc. are within range.
+                # If invalid, discard the first byte and try again.
+                print("-------------------------------------------------------------")
                 print(self.buffer)
+                self.can_message['ID'] = int((self.buffer[0] << 7) | self.buffer[1])
+                self.can_message['DLC'] = int(self.buffer[2])
+                self.can_message['data'] = self.buffer[3:(3+8)]
+                self.can_message['crc'] = self.buffer[-2]
+                print(self.can_message)
+
+
 
 
 def main():
@@ -217,6 +231,9 @@ def main():
     if not battery.begin():
         logging.info("Failed to connect to battery. Is port available?")
         return
+
+    battery.read() # loop until Ctrl+C
+
 
 
 if __name__ == '__main__':
