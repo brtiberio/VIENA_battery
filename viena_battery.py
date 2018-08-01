@@ -87,7 +87,7 @@ class Battery:
     can_message = {'ID': None, 'DLC': 0, 'data': [], 'crc': 0}
     buffer = np.zeros(15, dtype=np.uint8)
 
-    def init(self, port='/dev/ttyUSB0', baudrate=460800, debug=False):
+    def __init__(self, port='/dev/ttyUSB0', baudrate=460800, debug=False):
         self._port = port
         self._baudrate = baudrate
         self._connected = False
